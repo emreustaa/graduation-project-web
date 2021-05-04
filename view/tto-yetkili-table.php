@@ -18,6 +18,7 @@ if (isset($_GET['userId'])) {
     $userRoles = $db->query("SELECT * FROM roles WHERE idRole=" . $loginUsers['Roles_idRole'])->fetch(PDO::FETCH_ASSOC);
     $userApplies = $db->query('SELECT * FROM applies')->fetchAll(PDO::FETCH_ASSOC);
     //$statuTransections = $db->query('SELECT * FROM statuTransecitons WHERE Applies_idApply='.$_GET[''])
+
 }
 
 ?>
@@ -72,8 +73,38 @@ if (isset($_GET['userId'])) {
             font-size: 60px;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(function() {
+            $(".item").on('click', function(e) {
+
+                var table = document.getElementsByTagName("table")[0];
+                var tbody = table.getElementsByTagName("tbody")[0];
+                tbody.onclick = function(e) {
+                    e = e || window.event;
+                    var data = [];
+                    var target = e.srcElement || e.target;
+                    while (target && target.nodeName !== "TR") {
+                        target = target.parentNode;
+                    }
+                    if (target) {
+                        var cells = target.getElementsByTagName("td");
+                        for (var i = 0; i < cells.length; i++) {
+                            data.push(cells[i].innerHTML);
+                        }
+                    }
+                    $.post("tto-confirm-project.php", {
+                        data: data[0]
+                    }).done(function(receiveData) {
+                        alert(receiveData);
+                    })
+                };
 
 
+            });
+        })
+    </script>
 </head>
 
 <body class="animsition">
@@ -207,16 +238,10 @@ if (isset($_GET['userId'])) {
 
                                 </div>
                                 <div class="table-responsive table-responsive-data2">
-                                    <table class="table table-data2">
+
+                                    <table class="table table-data2" id="data-table">
                                         <thead>
                                             <tr>
-                                                <th>
-                                                    <label class="au-checkbox">
-
-                                                        <input type="checkbox">
-                                                        <span class="au-checkmark"></span>
-                                                    </label>
-                                                </th>
                                                 <th>PROJE KODU</th>
                                                 <th>Proje Adı</th>
                                                 <th>PROJE HEDEFİ</th>
@@ -227,21 +252,16 @@ if (isset($_GET['userId'])) {
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-
+                                        <tbody class="tbody">
+                                            <?php $counter = 0 ?>
                                             <?php foreach ($userApplies as $apply) : ?>
-                                                <td>
-                                                    <label class="au-checkbox">
-                                                        <input type="checkbox">
-                                                        <span class="au-checkmark"></span>
-                                                    </label>
-                                                </td>
-                                                <td><?php echo $apply['projectCode'] ?></td>
+                                                <?php $counter++; ?>
 
+                                                <td id="tdvalue"><?php echo $apply['projectCode'] . ' - ' . $counter ?></td>
                                                 <td>
                                                     <span><?php echo $apply['name'] ?></span>
                                                 </td>
-                                                <td class="desc"><?php echo $apply['goal'] ?></td>
+                                                <td><?php echo $apply['goal'] ?></td>
                                                 <td><?php echo strftime("%e %B %Y", strtotime($apply['date'])) ?></td>
                                                 <td>
                                                     <?php
@@ -250,7 +270,7 @@ if (isset($_GET['userId'])) {
 
                                                     $projectStatu = $db->query("SELECT * FROM status WHERE idStatus=" . $projectTransection['Status_idStatus'])->fetch(PDO::FETCH_ASSOC);
                                                     if ($projectStatu['name']  == "New") {
-                                                        $statuName = "İnceleniyor";
+                                                        $statuName = "Yeni Başvuru";
                                                         $className = "status--looking";
                                                     } else if ($projectStatu['name']  == "Reject") {
                                                         $statuName = "Reddedildi";
@@ -261,8 +281,10 @@ if (isset($_GET['userId'])) {
                                                     } else if ($projectStatu['name']  == "Confirm") {
                                                         $statuName = "Onaylandı";
                                                         $className = "status--process";
+                                                    } else if ($projectStatu['name']  == "Review") {
+                                                        $statuName = "İnceleniyor";
+                                                        $className = "status--review";
                                                     }
-
                                                     ?>
                                                     <span class="<?php echo $className ?>"><?php echo $statuName ?></span>
                                                     <!-- 
@@ -278,20 +300,70 @@ if (isset($_GET['userId'])) {
                                                     echo $applySector['name'];
                                                     ?></td>
                                                 <td>
+
                                                     <div class="table-data-feature">
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
+                                                        <?php if ($projectStatu['name']  == "New") {
+                                                            $disabled['sendStatu'] = "TRUE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "TRUE";
+                                                            $disabled['updateStatu'] = "FALSE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Reject") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['updateStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['sendEntrepreneurStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Update") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['updateStatu'] = "TRUE";
+                                                            $disabled['sendEntrepreneurStatu'] = "TRUE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Confirm") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "TRUE";
+                                                            $disabled['editStatu'] = "FALSE"; // TTO YETKİLİSİ İLE İLGİLİ OLAN
+                                                            $disabled['updateStatu'] = "TRUE"; // UPDATE -> HAKEMLE İLGİLİ OLAN
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['sendEntrepreneurStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Review") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['updateStatu'] = "FALSE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                        } ?>
+                                                        <button style="visibility: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="send-button" name="send-button" data-placement="top" title="Hakeme Gönder">
+                                                            <i class="zmdi zmdi-account"></i>
+                                                        </button>
+                                                        <button style="visibility: <?php echo $disabled['showStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['showStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="show-button" name="show-button" data-placement="top" title="Görüntüle">
+                                                            <i class="zmdi zmdi-eye"></i>
+                                                        </button>
+
+                                                        <button style="visibility: <?php echo $disabled['sendEntrepreneurStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['sendEntrepreneurStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="send-entrepereneur-button" name="send-entrepereneur-button" data-placement="top" title="Girişimciye Gönder">
                                                             <i class="zmdi zmdi-mail-send"></i>
                                                         </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
+
+                                                        <button style="visibility: <?php echo $disabled['updateStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['updateStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="update-button" name="update-button" data-placement="top" title="Hakem Düzenleme Talep Etti!">
+                                                            <i class="zmdi zmdi-close-circle"></i>
+                                                        </button>
+
+                                                        <button style="visibility: <?php echo $disabled['confirmStatu'] == "TRUE"  ? "visible" : "collapse" ?>; display: <?php echo $disabled['confirmStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="confirm-entrepereneur-button" name="confirm-entrepereneur-button" data-placement="top" title="Onayla ve Girişimciye Gönder">
+                                                            <i class="zmdi zmdi-check"></i>
+                                                        </button>
+
+
+                                                        <button style="visibility: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="edit-button" name="edit-button" title="TTO Yetkilisi Olarak Düzenleme Talep Et">
                                                             <i class="zmdi zmdi-edit"></i>
                                                         </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                            <i class="zmdi zmdi-delete"></i>
-                                                        </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                            <i class="zmdi zmdi-more"></i>
-                                                        </button>
+
                                                     </div>
+
                                                 </td>
                                                 <tr class="spacer"></tr>
                                             <?php endforeach; ?>

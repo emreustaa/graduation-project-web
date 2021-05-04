@@ -4672,6 +4672,10 @@ section {
     color: blue;
 }
 
+.status--review {
+    color: blueviolet;
+}
+
 .table-data3 thead {
     background: #333;
 }

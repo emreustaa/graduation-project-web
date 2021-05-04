@@ -253,8 +253,6 @@ if (isset($_GET['userId'])) {
                                     <h3 class="title-3">Sektörlere göre başvurular</h3>
                                     <div class="au-skill-container">
                                         <?php foreach ($allSectors as $sector) : ?>
-
-
                                             <div class="au-progress">
                                                 <span class="au-progress__title"><?php echo $sector['name'] ?></span>
                                                 <br> <br>
