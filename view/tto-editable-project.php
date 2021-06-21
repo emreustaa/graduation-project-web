@@ -92,11 +92,11 @@ if (isset($_GET['userId'])) {
                             data.push(cells[i].innerHTML);
                         }
                     }
-                    $.post("tto-confirm-project.php", {
-                        data: data[0]
-                    }).done(function(receiveData) {
-                        alert(receiveData);
-                    })
+                     if (buttonValue == "Görüntüle") {
+                        //window.location.replace()
+                        window.location.href = "tto-show-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+
+                    }
                 };
 
 
@@ -150,14 +150,21 @@ if (isset($_GET['userId'])) {
                                     <a href="tto-yetkili-table.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-clipboard-list"></i>Tüm Projeler</a>
                                 </li>
+
                                 <li>
-                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                    <a href="tto-system-projects.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-tasks"></i>Devam Eden Projeler</a>
                                 </li>
+
                                 <li>
                                     <a href="tto-all-confirms.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-check"></i>Onaylananlar</a>
                                 </li>
+                                <li>
+                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                </li>
+
                                 <li>
                                     <a href="tto-editable-project.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="far fa-edit"></i>Düzenleme Sürecindekiler</a>
@@ -184,19 +191,7 @@ if (isset($_GET['userId'])) {
                                     <img src="images/icon/logo-white.png" alt="FSMVÜ" />
                                 </a>
                             </div>
-                            <div class="header-button2">
-                                <div class="header-button-item js-item-menu">
-                                    <i class="zmdi zmdi-search"></i>
-                                    <div class="search-dropdown js-dropdown">
-                                        <form action="">
-                                            <input class="au-input au-input--full au-input--h65" type="text" placeholder="Search for datas &amp; reports..." />
-                                            <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -231,9 +226,9 @@ if (isset($_GET['userId'])) {
                                         <tbody class="tbody">
                                             <?php $counter = 0 ?>
                                             <?php foreach ($userApplies as $apply) : ?>
-                                                <?php $counter++; ?>
 
-                                                <td id="tdvalue"><?php echo $apply['projectCode'] . ' - ' . $counter ?></td>
+
+                                                <td id="tdvalue"><?php echo $apply['projectCode']  ?></td>
                                                 <td>
                                                     <span><?php echo $apply['name'] ?></span>
                                                 </td>
@@ -261,9 +256,6 @@ if (isset($_GET['userId'])) {
                                                             <i class="zmdi zmdi-eye"></i>
                                                         </button>
 
-                                                        <button style="visibility: visible; display: visible;" class="item" data-toggle="tooltip" id="update-button" name="update-button" data-placement="top" title="Hakem Düzenleme Talep Etti!" value="Hakem Düzenleme Talep Etti!">
-                                                            <i class="zmdi zmdi-close-circle"></i>
-                                                        </button>
 
                                                     </div>
 

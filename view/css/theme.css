@@ -4668,12 +4668,25 @@ section {
     color: #d39e00;
 }
 
+.status--deleted {
+    color: purple;
+}
+
 .status--looking {
     color: blue;
+    font-style: italic;
 }
 
 .status--review {
     color: blueviolet;
+}
+
+.status--saved {
+    color: rgb(137, 183, 221);
+}
+
+.status--entry {
+    color: black;
 }
 
 .table-data3 thead {

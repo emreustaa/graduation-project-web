@@ -16,7 +16,7 @@ if (!isset($_SESSION['login'])) {
 if (isset($_GET['userId'])) {
     $loginUsers = $db->query('SELECT * FROM users WHERE idUser=' . $_GET['userId'] . '')->fetch(PDO::FETCH_ASSOC);
     $userRoles = $db->query("SELECT * FROM roles WHERE idRole=" . $loginUsers['Roles_idRole'])->fetch(PDO::FETCH_ASSOC);
-    $userApplies = $db->query('SELECT * FROM applies')->fetchAll(PDO::FETCH_ASSOC);
+    $userApplies = $db->query('SELECT * FROM applies INNER JOIN statutransections ON applies.idApply = statutransections.Applies_idApply WHERE (Status_idStatus!=8)')->fetchAll(PDO::FETCH_ASSOC);
     //$statuTransections = $db->query('SELECT * FROM statuTransecitons WHERE Applies_idApply='.$_GET[''])
 
 }
@@ -35,7 +35,7 @@ if (isset($_GET['userId'])) {
     <meta name="keywords" content="au theme template">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <!-- Title Page-->
-    <title>Başvurulan Projeler</title>
+    <title>Tüm Projeler</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -57,6 +57,8 @@ if (isset($_GET['userId'])) {
     <link rel="shortcut icon" href="/bitirme/assets/images/tto.png">
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
 
     <style>
         .container-image-add {
@@ -100,8 +102,38 @@ if (isset($_GET['userId'])) {
                             data: data[0]
                         }).done(function(receiveData) {
                             alert(receiveData);
+                            window.location.reload();
                         })
+                    } else if (buttonValue == "Hakeme Gönder") {
+                        // alert("Hakeme göndere tıklandı!");
+                        $.post("tto-send-to-referee.php", {
+                            data: data[0]
+                        }).done(function(receiveData) {
+                            alert(receiveData)
+                            window.location.reload();
+                        })
+                    } else if (buttonValue == "Görüntüle") {
+                        //window.location.replace()
+                        window.location.href = "tto-show-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+
+                    } else if (buttonValue == "Düzenleme Talep Et") {
+                        $.post("tto-edit-request.php", {
+                            data: data[0]
+                        }).done(function(receiveData) {
+                            alert(receiveData)
+                            window.location.reload();
+                        })
+                    } else if (buttonValue == "Girişimciye Gönder") {
+
+                        $.post("tto-send-to-entrepreneur.php", {
+                            data: data[0]
+                        }).done(function(receiveData) {
+                            alert(receiveData)
+                            window.location.reload();
+                        })
+
                     }
+
 
                 };
 
@@ -156,20 +188,35 @@ if (isset($_GET['userId'])) {
                                     <a href="tto-yetkili-table.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-clipboard-list"></i>Tüm Projeler</a>
                                 </li>
+
                                 <li>
-                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                    <a href="tto-system-projects.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-tasks"></i>Devam Eden Projeler</a>
                                 </li>
+
                                 <li>
                                     <a href="tto-all-confirms.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-check"></i>Onaylananlar</a>
                                 </li>
+                                <li>
+                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                </li>
+
                                 <li>
                                     <a href="tto-editable-project.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="far fa-edit"></i>Düzenleme Sürecindekiler</a>
                                 </li>
 
                             </ul>
+                        </li>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="tto-yetkili-patent-table.php?userId=<?php echo $_GET['userId'] ?>">
+                                <i class="fas fa-thumbtack"></i>Patent
+                                <span class="arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </a>
                         </li>
 
                     </ul>
@@ -190,19 +237,7 @@ if (isset($_GET['userId'])) {
                                     <img src="images/icon/logo-white.png" alt="FSMVÜ" />
                                 </a>
                             </div>
-                            <div class="header-button2">
-                                <div class="header-button-item js-item-menu">
-                                    <i class="zmdi zmdi-search"></i>
-                                    <div class="search-dropdown js-dropdown">
-                                        <form action="">
-                                            <input class="au-input au-input--full au-input--h65" type="text" placeholder="Search for datas &amp; reports..." />
-                                            <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -218,50 +253,28 @@ if (isset($_GET['userId'])) {
                             <div class="col-md-12">
                                 <!-- DATA TABLE -->
                                 <h3 class="title-5 m-b-35">Tüm Projeler</h3>
-                                <div class="table-data__tool">
-                                    <div class="table-data__tool-left">
-                                        <div class="rs-select2--light rs-select2--md">
-                                            <select class="js-select2" name="property">
-                                                <option selected="selected">Tümü</option>
-                                                <option value="">Onaylananlar</option>
-                                                <option value="">Yeni Başvurular</option>
-                                                <option value="">Reddedilenler</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                        <div class="rs-select2--light rs-select2--sm">
-                                            <select class="js-select2" name="time">
-                                                <option selected="selected">Hepsi</option>
-                                                <option value="">Son 1 Ay</option>
-                                                <option value="">Son 1 Hafta</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
 
-                                    </div>
-
-                                </div>
                                 <div class="table-responsive table-responsive-data2">
 
                                     <table class="table table-data2" id="data-table">
                                         <thead>
                                             <tr>
-                                                <th>PROJE KODU</th>
+                                                <th>Proje Kodu</th>
                                                 <th>Proje Adı</th>
-                                                <th>PROJE HEDEFİ</th>
-                                                <th>BAŞVURU TARİHİ</th>
-                                                <th>BAŞVURU DURUMU</th>
-                                                <th>SEKTÖR</th>
+                                                <th>Proje Hedefi</th>
+                                                <th>Başvuru Tarihi</th>
+                                                <th>Başvuru Durumu </th>
+                                                <th>Sektör</th>
 
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="tbody">
-                                            <?php $counter = 0 ?>
-                                            <?php foreach ($userApplies as $apply) : ?>
-                                                <?php $counter++; ?>
+                                        <tbody>
 
-                                                <td id="tdvalue"><?php echo $apply['projectCode'] . ' - ' . $counter ?></td>
+                                            <?php foreach ($userApplies as $apply) : ?>
+
+
+                                                <td id="tdvalue"><?php echo $apply['projectCode'] ?></td>
                                                 <td>
                                                     <span><?php echo $apply['name'] ?></span>
                                                 </td>
@@ -273,10 +286,12 @@ if (isset($_GET['userId'])) {
                                                     $projectTransection  = $db->query("SELECT * FROM statutransections WHERE Applies_idApply=" . $apply['idApply'])->fetch(PDO::FETCH_ASSOC);
 
                                                     $projectStatu = $db->query("SELECT * FROM status WHERE idStatus=" . $projectTransection['Status_idStatus'])->fetch(PDO::FETCH_ASSOC);
+                                                    
                                                     if ($projectStatu['name']  == "New") {
                                                         $statuName = "Yeni Başvuru";
                                                         $className = "status--looking";
-                                                    } else if ($projectStatu['name']  == "Reject") {
+                                                    }
+                                                    else if ($projectStatu['name']  == "Reject") {
                                                         $statuName = "Reddedildi";
                                                         $className = "status--denied";
                                                     } else if ($projectStatu['name']  == "Update") {
@@ -286,9 +301,22 @@ if (isset($_GET['userId'])) {
                                                         $statuName = "Onaylandı";
                                                         $className = "status--process";
                                                     } else if ($projectStatu['name']  == "Review") {
-                                                        $statuName = "İnceleniyor";
-                                                        $className = "status--review";
+                                                        $statuName = "Onay Bekleniyor";
+                                                        $className = "status--looking";
+                                                    } else if ($projectStatu['name']  == "Entries") {
+                                                        $statuName = "Proje Devam Etmektedir";
+                                                        $className = "status--entry";
+                                                    } else if ($projectStatu['name']  == "Deleted") {
+                                                        $statuName = "Başvuru Talebi Onaylanmadı";
+                                                        $className = "status--deleted";
+                                                    } else if ($projectStatu['name']  == "Saved") {
+                                                        $statuName = "Taslak Olarak Kaydedildi";
+                                                        $className = "status--saved";
+                                                    } else if ($projectStatu['name']  == "RefereeConfirm") {
+                                                        $statuName = "Hakem Tarafından Onaylandı";
+                                                        $className = "status--process";
                                                     }
+                                                    
                                                     ?>
                                                     <span class="<?php echo $className ?>"><?php echo $statuName ?></span>
                                                     <!-- 
@@ -310,38 +338,53 @@ if (isset($_GET['userId'])) {
                                                             $disabled['sendStatu'] = "TRUE";
                                                             $disabled['confirmStatu'] = "FALSE";
                                                             $disabled['editStatu'] = "TRUE";
-                                                            $disabled['updateStatu'] = "FALSE";
                                                             $disabled['sendEntrepreneurStatu'] = "FALSE";
                                                             $disabled['showStatu'] = "TRUE";
                                                         } else if ($projectStatu['name']  == "Reject") {
                                                             $disabled['sendStatu'] = "FALSE";
                                                             $disabled['confirmStatu'] = "FALSE";
                                                             $disabled['editStatu'] = "FALSE";
-                                                            $disabled['updateStatu'] = "FALSE";
                                                             $disabled['showStatu'] = "TRUE";
                                                             $disabled['sendEntrepreneurStatu'] = "TRUE";
                                                         } else if ($projectStatu['name']  == "Update") {
                                                             $disabled['sendStatu'] = "FALSE";
                                                             $disabled['confirmStatu'] = "FALSE";
                                                             $disabled['editStatu'] = "FALSE";
-                                                            $disabled['updateStatu'] = "TRUE";
                                                             $disabled['sendEntrepreneurStatu'] = "FALSE";
                                                             $disabled['showStatu'] = "TRUE";
                                                         } else if ($projectStatu['name']  == "Confirm") {
                                                             $disabled['sendStatu'] = "FALSE";
-                                                            $disabled['confirmStatu'] = "TRUE";
+                                                            $disabled['confirmStatu'] = "FALSE";
                                                             $disabled['editStatu'] = "FALSE"; // TTO YETKİLİSİ İLE İLGİLİ OLAN
-                                                            $disabled['updateStatu'] = "FALSE"; // UPDATE -> HAKEMLE İLGİLİ OLAN
                                                             $disabled['showStatu'] = "TRUE";
-                                                            $disabled['sendEntrepreneurStatu'] = "TRUE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
                                                         } else if ($projectStatu['name']  == "Review") {
                                                             $disabled['sendStatu'] = "FALSE";
                                                             $disabled['confirmStatu'] = "FALSE";
                                                             $disabled['editStatu'] = "FALSE";
-                                                            $disabled['updateStatu'] = "FALSE";
                                                             $disabled['sendEntrepreneurStatu'] = "FALSE";
                                                             $disabled['showStatu'] = "TRUE";
-                                                        } ?>
+                                                        } else if ($projectStatu['name']  == "Entries") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Deleted") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "RefereeConfirm") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['confirmStatu'] = "TRUE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['sendEntrepreneurStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "FALSE";
+                                                        }
+
+                                                        ?>
                                                         <button style="visibility: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="send-button" name="send-button" data-placement="top" title="Hakeme Gönder" value="Hakeme Gönder">
                                                             <i class="zmdi zmdi-account"></i>
                                                         </button>
@@ -353,15 +396,11 @@ if (isset($_GET['userId'])) {
                                                             <i class="zmdi zmdi-mail-send"></i>
                                                         </button>
 
-                                                        <button style="visibility: <?php echo $disabled['updateStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['updateStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="update-button" name="update-button" data-placement="top" title="Hakem Düzenleme Talep Etti!" value="Hakem Düzenleme Talep Etti!">
-                                                            <i class="zmdi zmdi-close-circle"></i>
-                                                        </button>
-
                                                         <button style="visibility: <?php echo $disabled['confirmStatu'] == "TRUE"  ? "visible" : "collapse" ?>; display: <?php echo $disabled['confirmStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="confirm-entrepereneur-button" name="confirm-entrepereneur-button" data-placement="top" title="Onayla ve Girişimciye Gönder" value="Onayla ve Girişimciye Gönder">
                                                             <i class="zmdi zmdi-check"></i>
                                                         </button>
 
-                                                        <button style="visibility: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="edit-button" name="edit-button" title="TTO Yetkilisi Olarak Düzenleme Talep Et" value="TTO Yetkilisi Olarak Düzenleme Talep Et">
+                                                        <button style="visibility: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="edit-button" name="edit-button" title="Düzenleme Talep Et" value="Düzenleme Talep Et">
                                                             <i class="zmdi zmdi-edit"></i>
                                                         </button>
 
@@ -372,13 +411,15 @@ if (isset($_GET['userId'])) {
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
+
+                                    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+                                    <script src="js/lisenme.js"></script>
+                                    <script>
+                                        jQuery('#data-table').ddTableFilter();
+                                    </script>
                                 </div>
-                                <!-- END DATA TABLE -->
                             </div>
                         </div>
-
-
-
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="copyright">

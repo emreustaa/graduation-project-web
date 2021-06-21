@@ -13,12 +13,11 @@ if (!isset($_SESSION['login'])) {
     session_destroy();
     header('Location:../session-ended.php');
 }
+
 if (isset($_GET['userId'])) {
     $loginUsers = $db->query('SELECT * FROM users WHERE idUser=' . $_GET['userId'] . '')->fetch(PDO::FETCH_ASSOC);
     $userApplies = $db->query('SELECT * FROM applies WHERE Users_idUser=' . $_GET['userId'])->fetchAll(PDO::FETCH_ASSOC);
     $userRoles = $db->query("SELECT * FROM roles WHERE idRole=" . $loginUsers['Roles_idRole'])->fetch(PDO::FETCH_ASSOC);
-
-    //$statuTransections = $db->query('SELECT * FROM statuTransecitons WHERE Applies_idApply='.$_GET[''])
 }
 
 ?>
@@ -57,6 +56,8 @@ if (isset($_GET['userId'])) {
     <link rel="shortcut icon" href="/bitirme/assets/images/tto.png">
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
 
     <style>
         .container-image-add {
@@ -73,6 +74,63 @@ if (isset($_GET['userId'])) {
             font-size: 60px;
         }
     </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(function() {
+            $(".item").on('click', function(e) {
+                var buttonValue = $(this).attr("value")
+
+                var table = document.getElementsByTagName("table")[0];
+                var tbody = table.getElementsByTagName("tbody")[0];
+                tbody.onclick = function(e) {
+                    e = e || window.event;
+                    var data = [];
+                    var target = e.srcElement || e.target;
+                    while (target && target.nodeName !== "TR") {
+                        target = target.parentNode;
+                    }
+                    if (target) {
+                        var cells = target.getElementsByTagName("td");
+                        for (var i = 0; i < cells.length; i++) {
+                            data.push(cells[i].innerHTML);
+                        }
+                    }
+                    if (buttonValue == "Hakeme Gönder") {
+                        $.post("entre-send-to-tto.php", {
+                            data: data[0]
+                        }).done(function(receiveData) {
+                            alert(receiveData)
+                            window.location.reload();
+                        })
+                    } else if (buttonValue == "Görüntüle") {
+                        window.location.href = "entre-show-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+
+                    } else if (buttonValue == "Düzenle") {
+                        window.location.href = "entre-edit-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+
+                    } else if (buttonValue == "Düzenle ve Gönder") {
+                        window.location.href = "entre-request-edit-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+
+                    } else if (buttonValue == "Projeyi Başlat") {
+
+                        $.post("entre-start-project.php", {
+                            data: data[0]
+                        }).done(function(receiveData) {
+                            alert(receiveData)
+                            window.location.reload();
+                        })
+                    }
+
+
+
+                };
+
+
+            });
+        })
+    </script>
 
 
 </head>
@@ -101,14 +159,13 @@ if (isset($_GET['userId'])) {
                     <a href="../index.php">Çıkış</a>
                 </div>
                 <nav class="navbar-sidebar2">
+
                     <ul class="list-unstyled navbar__list">
                         <li class="active has-sub">
                             <a class="js-arrow" href="index.php?userId=<?php echo $_GET['userId'] ?>">
                                 <i class="fas fa-home"></i>Ana Sayfa
                             </a>
-
                         </li>
-
                         <li class="has-sub">
                             <a class="js-arrow" href="#">
                                 <i class="fas fa-trophy"></i>Proje
@@ -117,19 +174,51 @@ if (isset($_GET['userId'])) {
                                 </span>
                             </a>
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                <li>
-                                    <a href="table.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="fas fa-table"></i>Başvurduklarım</a>
-                                </li>
+
                                 <li>
                                     <a href="form.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="far fa-check-square"></i>Yeni Başvuru</a>
+                                        <i class="fas fa-paper-plane"></i>Yeni Başvuru</a>
+                                </li>
+                                <li>
+                                    <a href="table.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-clipboard-list"></i>Başvurduklarım</a>
+                                </li>
+
+                                <li>
+                                    <a href="entre-continue-projects.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-tasks"></i>Devam Eden Projeler</a>
+                                </li>
+
+                                <li>
+                                    <a href="entre-confirms-projects.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-check"></i>Onaylananlar</a>
+                                </li>
+                                <li>
+                                    <a href="entre-confirm-request-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-bell"></i>Onay Bekleyenler</a>
+                                </li>
+
+                                <li>
+                                    <a href="entre-editable-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="far fa-edit"></i>Düzenleme Sürecindekiler</a>
+                                </li>
+
+                                <li>
+                                    <a href="entre-saved-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="far fa-save"></i>Taslak Olarak Kaydedilenler</a>
                                 </li>
 
                             </ul>
+
+                        <li class="has-sub">
+                            <a class="js-arrow" href="entre-all-patents.php?userId=<?php echo $_GET['userId'] ?>">
+                                <i class="fas fa-thumbtack"></i>Patent
+                                <span class="arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </a>
                         </li>
-
-
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -148,134 +237,32 @@ if (isset($_GET['userId'])) {
                                     <img src="images/icon/logo-white.png" alt="FSMVU" />
                                 </a>
                             </div>
-                            <div class="header-button2">
-                                <div class="header-button-item js-item-menu">
-                                    <i class="zmdi zmdi-search"></i>
-                                    <div class="search-dropdown js-dropdown">
-                                        <form action="">
-                                            <input class="au-input au-input--full au-input--h65" type="text" placeholder="Search for datas &amp; reports..." />
-                                            <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
 
-                                <div class="header-button-item mr-0 js-sidebar-btn">
-                                    <i class="zmdi zmdi-menu"></i>
-                                </div>
-
-                            </div>
                         </div>
                     </div>
                 </div>
             </header>
-            <!-- END HEADER DESKTOP-->
-            <aside class="menu-sidebar2 js-right-sidebar d-block d-lg-none">
-                <div class="logo">
-                    <a href="#">
-                        <img src="images/icon/logo-white.png" alt="Cool Admin" />
-                    </a>
-                </div>
-                <div class="menu-sidebar2__content js-scrollbar1">
-                    <div class="account2">
-                        <div class="image img-cir img-120">
-                            <div class="container-image-add">
-                                <img src="images/icon/profile.png" alt="John Doe" />
-                                <div class="centered"> <?php echo ($loginUsers['name']) ? strtoupper(substr($loginUsers['name'], 0, 1))  : '' ?></div>
-                            </div>
-                        </div>
-                        <h4 class="name"><?php echo $loginUsers['name'] . ' ' . $loginUsers['surname'] ?></h4>
-                        <h4><?php echo $userRoles['description'] ?></h4>
-                        <br>
-                        <a href="../index.php">Çıkış</a>
-                    </div>
-                    <nav class="navbar-sidebar2">
-                        <ul class="list-unstyled navbar__list">
-                            <li class="active has-sub">
-                                <a class="js-arrow" href="view/index.php?userId=<?php echo $_GET['userId'] ?>">
-                                    <i class="fas fa-home"></i>Ana Sayfa
-                                </a>
 
-                            </li>
-
-                            <li class="has-sub">
-                                <a class="js-arrow" href="#">
-                                    <i class="fas fa-trophy"></i>Proje
-                                    <span class="arrow">
-                                        <i class="fas fa-angle-down"></i>
-                                    </span>
-                                </a>
-                                <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                    <li>
-                                        <a href="table.php?userId=<?php echo $_GET['userId'] ?>">
-                                            <i class="fas fa-table"></i>Başvurduklarım</a>
-                                    </li>
-                                    <li>
-                                        <a href="form.php?userId=<?php echo $_GET['userId'] ?>">
-                                            <i class="far fa-check-square"></i>Yeni Başvuru</a>
-                                    </li>
-
-                                </ul>
-                            </li>
-
-
-                        </ul>
-                    </nav>
-                </div>
-            </aside>
-            <!-- MAIN CONTENT-->
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-
                         <div class="row">
                             <div class="col-md-12">
-                                <!-- DATA TABLE -->
-                                <h3 class="title-5 m-b-35">Projelerim</h3>
-                                <div class="table-data__tool">
-                                    <div class="table-data__tool-left">
-                                        <div class="rs-select2--light rs-select2--md">
-                                            <select class="js-select2" name="property">
-                                                <option selected="selected">Tümü</option>
-                                                <option value="">Onaylananlar</option>
-                                                <option value="">Yeni Başvurular</option>
-                                                <option value="">Reddedilenler</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                        <div class="rs-select2--light rs-select2--sm">
-                                            <select class="js-select2" name="time">
-                                                <option selected="selected">Hepsi</option>
-                                                <option value="">Son 1 Ay</option>
-                                                <option value="">Son 1 Hafta</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
 
-                                    </div>
-                                    <div class="table-data__tool-right">
-                                        <a href="form.php?userId=<?php echo $_GET['userId'] ?>"><button class="au-btn au-btn-icon au-btn--green au-btn--small">
-                                                <i class="zmdi zmdi-plus"></i>Proje Ekle</button></a>
-                                    </div>
-                                </div>
+
+                                <h3 class="title-5 m-b-35">Projelerim</h3>
+
                                 <div class="table-responsive table-responsive-data2">
-                                    <table class="table table-data2">
+                                    <table id="dataTable" class="table table-data2">
                                         <thead>
                                             <tr>
-                                                <th>
-                                                    <label class="au-checkbox">
 
-                                                        <input type="checkbox">
-                                                        <span class="au-checkmark"></span>
-                                                    </label>
-                                                </th>
-                                                <th>PROJE KODU</th>
+                                                <th>Proje Kodu</th>
                                                 <th>Proje Adı</th>
-                                                <th>PROJE HEDEFİ</th>
-                                                <th>BAŞVURU TARİHİ</th>
-                                                <th>BAŞVURU DURUMU</th>
-                                                <th>SEKTÖR</th>
+                                                <th>Proje Hedefi</th>
+                                                <th>Başvuru Tarihi</th>
+                                                <th>Başvuru Durumu </th>
+                                                <th>Sektör</th>
 
                                                 <th></th>
                                             </tr>
@@ -283,18 +270,13 @@ if (isset($_GET['userId'])) {
                                         <tbody>
 
                                             <?php foreach ($userApplies as $apply) : ?>
-                                                <td>
-                                                    <label class="au-checkbox">
-                                                        <input type="checkbox">
-                                                        <span class="au-checkmark"></span>
-                                                    </label>
-                                                </td>
+
                                                 <td><?php echo $apply['projectCode'] ?></td>
 
                                                 <td>
                                                     <span><?php echo $apply['name'] ?></span>
                                                 </td>
-                                                <td class="desc"><?php echo $apply['goal'] ?></td>
+                                                <td><?php echo $apply['goal'] ?></td>
                                                 <td><?php echo strftime("%e %B %Y", strtotime($apply['date'])) ?></td>
                                                 <td>
                                                     <?php
@@ -302,8 +284,10 @@ if (isset($_GET['userId'])) {
                                                     $projectTransection  = $db->query("SELECT * FROM statutransections WHERE Applies_idApply=" . $apply['idApply'])->fetch(PDO::FETCH_ASSOC);
 
                                                     $projectStatu = $db->query("SELECT * FROM status WHERE idStatus=" . $projectTransection['Status_idStatus'])->fetch(PDO::FETCH_ASSOC);
+                                           
+
                                                     if ($projectStatu['name']  == "New") {
-                                                        $statuName = "İnceleniyor";
+                                                        $statuName = "Onay Bekleniyor";
                                                         $className = "status--looking";
                                                     } else if ($projectStatu['name']  == "Reject") {
                                                         $statuName = "Reddedildi";
@@ -314,15 +298,25 @@ if (isset($_GET['userId'])) {
                                                     } else if ($projectStatu['name']  == "Confirm") {
                                                         $statuName = "Onaylandı";
                                                         $className = "status--process";
+                                                    } else if ($projectStatu['name']  == "Review") {
+                                                        $statuName = "Onay Bekleniyor";
+                                                        $className = "status--looking";
+                                                    } else if ($projectStatu['name']  == "Entries") {
+                                                        $statuName = "Proje Devam Etmektedir";
+                                                        $className = "status--entry";
+                                                    } else if ($projectStatu['name']  == "Deleted") {
+                                                        $statuName = "Başvuru Talebi Onaylanmadı";
+                                                        $className = "status--deleted";
+                                                    } else if ($projectStatu['name']  == "Saved") {
+                                                        $statuName = "Taslak Olarak Kaydedildi";
+                                                        $className = "status--saved";
+                                                    } else if ($projectStatu['name']  == "RefereeConfirm") {
+                                                        $statuName = "Proje Devam Etmektedir";
+                                                        $className = "status--entry";
                                                     }
-
                                                     ?>
                                                     <span class="<?php echo $className ?>"><?php echo $statuName ?></span>
-                                                    <!-- 
-                                                          <td>
-                                                              <span class="status--denied">Denied</span>
-                                                          </td>
-                                                    -->
+
                                                 </td>
                                                 <td>
                                                     <?php
@@ -332,31 +326,104 @@ if (isset($_GET['userId'])) {
                                                     ?></td>
                                                 <td>
                                                     <div class="table-data-feature">
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Send">
-                                                            <i class="zmdi zmdi-mail-send"></i>
+                                                        <?php if ($projectStatu['name']  == "New") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Reject") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Update") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "TRUE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "FALSE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Confirm") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE"; // TTO YETKİLİSİ İLE İLGİLİ OLAN
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "TRUE";
+                                                        } else if ($projectStatu['name']  == "Review") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Entries") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Deleted") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "FALSE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "Saved") {
+                                                            $disabled['sendStatu'] = "TRUE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "TRUE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        } else if ($projectStatu['name']  == "RefereeConfirm") {
+                                                            $disabled['sendStatu'] = "FALSE";
+                                                            $disabled['editSendStatu'] = "FALSE";
+                                                            $disabled['editStatu'] = "FALSE";
+                                                            $disabled['showStatu'] = "TRUE";
+                                                            $disabled['startStatu'] = "FALSE";
+                                                        }
+
+                                                        ?>
+                                                        <button style="visibility: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['sendStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="send-button" name="send-button" data-placement="top" title="TTO Yetkilisine Gönder" value="Hakeme Gönder">
+                                                            <i class="zmdi zmdi-account"></i>
                                                         </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Edit">
+                                                        <button style="visibility: <?php echo $disabled['showStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['showStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" id="show-button" name="show-button" data-placement="top" title="Görüntüle" value="Görüntüle">
+                                                            <i class="zmdi zmdi-eye"></i>
+                                                        </button>
+
+                                                        <button style="visibility: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['editStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="edit-button" name="edit-button" title="Düzenle" value="Düzenle">
                                                             <i class="zmdi zmdi-edit"></i>
                                                         </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="Delete">
-                                                            <i class="zmdi zmdi-delete"></i>
+                                                        <button style="visibility: <?php echo $disabled['editSendStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['editSendStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="edit-button" name="edit-button" title="Düzenle ve Gönder" value="Düzenle ve Gönder">
+                                                            <i class="zmdi zmdi-edit"></i>
                                                         </button>
-                                                        <button class="item" data-toggle="tooltip" data-placement="top" title="More">
-                                                            <i class="zmdi zmdi-more"></i>
+
+                                                        <button style="visibility: <?php echo $disabled['startStatu'] == "TRUE"  ? "visible" : "hidden" ?>; display: <?php echo $disabled['startStatu'] == "TRUE"  ? "visible" : "none" ?>;" class="item" data-toggle="tooltip" data-placement="top" id="start-button" name="start-button" title="Projeyi Başlat" value="Projeyi Başlat">
+                                                            <i class="zmdi zmdi-check"></i>
                                                         </button>
-                                                    </div>
                                                 </td>
                                                 <tr class="spacer"></tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
+
+                                    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+                                    <script src="js/lisenme.js"></script>
+                                    <script>
+                                        jQuery('#dataTable').ddTableFilter();
+                                        /*const searchInput = document.getElementById('search');
+                                        const rows = document.querySelectorAll('tbody tr');
+
+                                        searchInput.addEventListener('keyup', function(event) {
+                                            const q = event.target.value;
+                                            rows.forEach(row => {
+                                                row.querySelector('td').textContent.toLowerCase().startsWith(q) ? row.style.display = "" : row.style.display = 'none';
+                                            });
+                                        })*/
+                                    </script>
                                 </div>
                                 <!-- END DATA TABLE -->
                             </div>
                         </div>
-
-
-
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="copyright">
@@ -390,6 +457,7 @@ if (isset($_GET['userId'])) {
     <script src="vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
     <script src="vendor/chartjs/Chart.bundle.min.js"></script>
     <script src="vendor/select2/select2.min.js">
+
     </script>
 
     <!-- Main JS-->

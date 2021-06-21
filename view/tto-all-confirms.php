@@ -92,11 +92,9 @@ if (isset($_GET['userId'])) {
                             data.push(cells[i].innerHTML);
                         }
                     }
-                    $.post("tto-confirm-project.php", {
-                        data: data[0]
-                    }).done(function(receiveData) {
-                        alert(receiveData);
-                    })
+                    if (buttonValue == "Görüntüle") {
+                        window.location.href = "tto-show-project.php?userId=<?php echo $_GET['userId'] ?>&projectCode=" + data[0]
+                    }
                 };
 
 
@@ -150,14 +148,21 @@ if (isset($_GET['userId'])) {
                                     <a href="tto-yetkili-table.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-clipboard-list"></i>Tüm Projeler</a>
                                 </li>
+
                                 <li>
-                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                    <a href="tto-system-projects.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-tasks"></i>Devam Eden Projeler</a>
                                 </li>
+
                                 <li>
                                     <a href="tto-all-confirms.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="fas fa-check"></i>Onaylananlar</a>
                                 </li>
+                                <li>
+                                    <a href="tto-new-project.php?userId=<?php echo $_GET['userId'] ?>">
+                                        <i class="fas fa-bell"></i>Yeni Başvurular</a>
+                                </li>
+
                                 <li>
                                     <a href="tto-editable-project.php?userId=<?php echo $_GET['userId'] ?>">
                                         <i class="far fa-edit"></i>Düzenleme Sürecindekiler</a>
@@ -184,19 +189,7 @@ if (isset($_GET['userId'])) {
                                     <img src="images/icon/logo-white.png" alt="FSMVÜ" />
                                 </a>
                             </div>
-                            <div class="header-button2">
-                                <div class="header-button-item js-item-menu">
-                                    <i class="zmdi zmdi-search"></i>
-                                    <div class="search-dropdown js-dropdown">
-                                        <form action="">
-                                            <input class="au-input au-input--full au-input--h65" type="text" placeholder="Search for datas &amp; reports..." />
-                                            <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -212,29 +205,7 @@ if (isset($_GET['userId'])) {
                             <div class="col-md-12">
                                 <!-- DATA TABLE -->
                                 <h3 class="title-5 m-b-35">Onaylanan Projeler</h3>
-                                <div class="table-data__tool">
-                                    <div class="table-data__tool-left">
-                                        <div class="rs-select2--light rs-select2--md">
-                                            <select class="js-select2" name="property">
-                                                <option selected="selected">Tümü</option>
-                                                <option value="">Onaylananlar</option>
-                                                <option value="">Yeni Başvurular</option>
-                                                <option value="">Reddedilenler</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                        <div class="rs-select2--light rs-select2--sm">
-                                            <select class="js-select2" name="time">
-                                                <option selected="selected">Hepsi</option>
-                                                <option value="">Son 1 Ay</option>
-                                                <option value="">Son 1 Hafta</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
 
-                                    </div>
-
-                                </div>
                                 <div class="table-responsive table-responsive-data2">
 
                                     <table class="table table-data2" id="data-table">
@@ -253,9 +224,9 @@ if (isset($_GET['userId'])) {
                                         <tbody class="tbody">
                                             <?php $counter = 0 ?>
                                             <?php foreach ($userApplies as $apply) : ?>
-                                                <?php $counter++; ?>
 
-                                                <td id="tdvalue"><?php echo $apply['projectCode'] . ' - ' . $counter ?></td>
+
+                                                <td id="tdvalue"><?php echo $apply['projectCode'] ?></td>
                                                 <td>
                                                     <span><?php echo $apply['name'] ?></span>
                                                 </td>
@@ -279,17 +250,9 @@ if (isset($_GET['userId'])) {
 
                                                     <div class="table-data-feature">
 
-                                                        <button style="visibility: visible; display: visible;" class="item" data-toggle="tooltip" id="send-entrepereneur-button" name="send-entrepereneur-button" data-placement="top" title="Girişimciye Gönder" value="Girişimciye Gönder">
-                                                            <i class="zmdi zmdi-mail-send"></i>
-                                                        </button>
                                                         <button style="visibility: visible; display: visible;" class="item" data-toggle="tooltip" id="show-button" name="show-button" data-placement="top" title="Görüntüle" value="Görüntüle">
                                                             <i class="zmdi zmdi-eye"></i>
                                                         </button>
-
-                                                        <button style="visibility: visible; display: visible;" class="item" data-toggle="tooltip" id="confirm-entrepereneur-button" name="confirm-entrepereneur-button" data-placement="top" title="Onayla ve Girişimciye Gönder" value="Onayla ve Girişimciye Gönder">
-                                                            <i class="zmdi zmdi-check"></i>
-                                                        </button>
-
                                                     </div>
 
                                                 </td>

@@ -89,7 +89,6 @@ if (isset($_POST['submit'])) {
         <div class="row">
             <a href="index.php"> <img src="/bitirme/assets/images/logo.png" alt="Logo" class="logo" id="kurumlogo"></a>
             <div class="login-container col-lg-4 col-md-6 col-sm-8 col-xs-12">
-
                 <div class="login-title text-center">
                     <h2><span>FSMVÜ <strong>Teknoloji Transfer Ofisi</strong></span></h2>
                 </div>

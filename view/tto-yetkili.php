@@ -31,9 +31,7 @@ if (isset($_GET['userId'])) {
     <!-- Required meta tags-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="au theme template">
-    <meta name="author" content="Hau Nguyen">
-    <meta name="keywords" content="au theme template">
+
 
     <!-- Title Page-->
     <title>TTO YETKİLİ</title>
@@ -92,11 +90,11 @@ if (isset($_GET['userId'])) {
                 <div class="account2">
                     <div class="image img-cir img-120">
                         <div class="container-image-add">
-                            <img src="images/icon/profile.png" alt="John Doe" />
+                            <img src="images/icon/profile.png" alt="Fsmvü" />
                             <div class="centered"> <?php echo ($loginUsers['name']) ? strtoupper(substr($loginUsers['name'], 0, 1))  : '' ?></div>
                         </div>
                     </div>
-                    <h4 class="name"><?php echo $loginUsers['name'] ?></h4>
+                    <h4 class="name"><?php echo $loginUsers['name'] . ' ' .$loginUsers['surname'] ?></h4>
                     <h4><?php echo $userRoles['description'] ?></h4>
                     <br>
                     <a href="../index.php">Çıkış</a>
@@ -111,25 +109,22 @@ if (isset($_GET['userId'])) {
                         </li>
 
                         <li class="has-sub">
-                            <a class="js-arrow" href="#">
+                            <a class="js-arrow" href="tto-yetkili-table.php?userId=<?php echo $_GET['userId'] ?>">
                                 <i class="fas fa-trophy"></i>Proje
                                 <span class="arrow">
-                                    <i class="fas fa-angle-down"></i>
+                                    <i class="fas fa-arrow-right"></i>
                                 </span>
                             </a>
-                            <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                <li>
-                                    <a href="tto-yetkili-table.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="fas fa-table"></i>Başvurular</a>
-                                </li>
-                                <li>
-                                    <a href="form.php?userId=<?php echo $_GET['userId'] ?>">
-                                        <i class="far fa-check-square"></i>Yeni Başvuru</a>
-                                </li>
 
-                            </ul>
-
-
+                        </li>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="tto-yetkili-patent-table.php?userId=<?php echo $_GET['userId'] ?>">
+                                <i class="fas fa-thumbtack"></i>Patent
+                                <span class="arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -148,21 +143,7 @@ if (isset($_GET['userId'])) {
                                     <img src="images/icon/logo-white.png" alt="CoolAdmin" />
                                 </a>
                             </div>
-                            <div class="header-button2">
-                                <div class="header-button-item js-item-menu">
-                                    <i class="zmdi zmdi-search"></i>
-                                    <div class="search-dropdown js-dropdown">
-                                        <form action="">
-                                            <input class="au-input au-input--full au-input--h65" type="text" placeholder="Search for datas &amp; reports..." />
-                                            <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                        </form>
-                                    </div>
-                                </div>
 
-
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -281,28 +262,12 @@ if (isset($_GET['userId'])) {
                                     <h3 class="title-3 m-b-30">
                                         <i class="zmdi zmdi-account-calendar"></i>Kayıtlı Kullanıcılar
                                     </h3>
-                                    <div class="filters m-b-45">
-                                        <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border">
-                                            <select class="js-select2" name="property">
-                                                <option selected="selected">Tümü</option>
-                                                <option value="">Girişimciler</option>
-                                                <option value="">TTO Yetkilileri</option>
-                                                <option value="">Yetkili Hakemler</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
 
-                                    </div>
                                     <div class="table-responsive table-data">
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <td>
-                                                        <label class="au-checkbox">
-                                                            <input type="checkbox">
-                                                            <span class="au-checkmark"></span>
-                                                        </label>
-                                                    </td>
+
                                                     <td>İsim</td>
                                                     <td>Rol</td>
                                                     <td>Meslek</td>
@@ -313,12 +278,7 @@ if (isset($_GET['userId'])) {
 
                                                 <?php foreach ($allUsers as $user) : ?>
                                                     <tr>
-                                                        <td>
-                                                            <label class="au-checkbox">
-                                                                <input type="checkbox">
-                                                                <span class="au-checkmark"></span>
-                                                            </label>
-                                                        </td>
+
                                                         <td>
                                                             <div class="table-data__info">
                                                                 <h6><?php echo $user['name'] ?></h6>
@@ -360,9 +320,7 @@ if (isset($_GET['userId'])) {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="user-data__footer">
-                                        <button class="au-btn au-btn-load">Daha Fazla</button>
-                                    </div>
+
                                 </div>
                                 <!-- END USER DATA-->
                             </div>
